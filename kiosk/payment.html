@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BiteKaro — Payment</title>
+  <meta name="description" content="Choose your payment method and complete your BiteKaro order.">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/kiosk.css">
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen font-display pb-20">
+  <header class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-10 py-4 sticky top-0 z-50">
+    <div class="flex items-center gap-6">
+      <button class="flex size-10 cursor-pointer items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:bg-slate-200 transition-colors" onclick="window.location.href='cart.html'">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="logo-wrap hover:scale-105 transition-transform">
+          <img src="/public/images/logo.png" alt="BiteKaro" class="logo-img" style="height: 36px;" onerror="this.style.display='none'">
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 flex justify-center py-10 px-4">
+    <div class="max-w-[800px] w-full flex flex-col gap-8">
+      
+      <!-- Order Summary -->
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden cursor-pointer" onclick="toggleOrderDetails()">
+        <div class="p-6 flex flex-col md:flex-row items-center justify-between gap-6 hover:bg-slate-50 transition-colors">
+          <div class="flex items-center gap-6">
+            <div class="size-20 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
+               <span class="material-symbols-outlined text-primary text-4xl">receipt_long</span>
+            </div>
+            <div>
+              <h3 class="text-slate-500 text-sm font-medium uppercase tracking-wide mb-1 font-display">Total Order Value</h3>
+              <div class="text-[#1565C0] text-4xl font-bold leading-none tracking-tight font-display" id="paymentTotal">₹0</div>
+            </div>
+          </div>
+          <div class="flex flex-col items-end gap-2">
+            <span class="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full uppercase font-display" id="orderSummaryLabel">0 Items</span>
+            <div class="flex items-center gap-2 text-primary font-semibold text-sm hover:underline font-display">
+              <span>View Itemized Details</span>
+              <span class="material-symbols-outlined text-sm transition-transform duration-300" id="expandArrow">expand_more</span>
+            </div>
+          </div>
+        </div>
+        <div id="orderDetails" class="hidden px-6 pb-6 pt-4 border-t border-slate-100 dark:border-slate-800 font-display"></div>
+      </div>
+
+      <div class="flex flex-col gap-4" id="paymentOptions">
+        <h2 class="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100 font-display">Select Payment Method</h2>
+        
+        <!-- Razorpay Card -->
+        <div class="payment-card relative group cursor-pointer transition-all hover:scale-[1.01] overflow-hidden" id="razorpayCard" onclick="selectPayment('razorpay')">
+          <div class="absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-[#1565C0] to-[#60a5fa] rounded-l-xl opacity-0 transition-opacity"></div>
+          <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 group-[.selected]:border-[#1565C0] group-[.selected]:shadow-lg relative z-10">
+            <div class="flex items-start gap-6">
+              <div class="bg-blue-50 p-3 rounded-xl flex items-center justify-center border border-blue-100">
+                <span class="material-symbols-outlined text-[#1565C0] text-4xl">contactless</span>
+              </div>
+              <div class="space-y-2">
+                <div class="flex items-center gap-3">
+                  <h4 class="text-xl font-bold font-display">Online Payment</h4>
+                  <span class="bg-[#1565C0] text-white text-[10px] font-bold px-2 py-0.5 rounded tracking-widest uppercase font-display">RECOMMENDED</span>
+                </div>
+                <p class="text-slate-600 dark:text-slate-400 text-sm font-display">Pay <span id="razorpayAmount" class="font-bold">₹0</span> securely via Razorpay</p>
+                <div class="flex gap-2 pt-1">
+                  <span class="text-[10px] border border-slate-200 dark:border-slate-700 text-slate-500 px-2 py-0.5 rounded font-bold font-display">UPI</span>
+                  <span class="text-[10px] border border-slate-200 dark:border-slate-700 text-slate-500 px-2 py-0.5 rounded font-bold font-display">CARD</span>
+                  <span class="text-[10px] border border-slate-200 dark:border-slate-700 text-slate-500 px-2 py-0.5 rounded font-bold font-display">NETBANKING</span>
+                </div>
+              </div>
+            </div>
+            <button id="razorpayBtn" onclick="event.stopPropagation(); handleRazorpayPayment()" style="display:none;" class="w-full md:w-auto px-8 py-3 bg-gradient-to-r from-[#1565C0] to-[#60a5fa] text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all font-display z-20">
+                Pay Now
+            </button>
+          </div>
+          <!-- Inject styles to make selected tab border visible -->
+          <style>
+             #razorpayCard.selected > div:first-child { opacity: 1; }
+          </style>
+        </div>
+
+        <!-- Cash Card -->
+        <div class="payment-card group cursor-pointer transition-all hover:scale-[1.01]" id="cashCard" onclick="selectPayment('cash')">
+          <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 [&.selected]:border-emerald-500 [&.selected]:shadow-lg relative overflow-hidden" id="cashCardInner">
+            <div class="absolute inset-y-0 left-0 w-1.5 bg-emerald-500 rounded-l-xl opacity-0 transition-opacity" id="cashIndicator"></div>
+            <div class="flex items-start gap-6 z-10 relative">
+              <div class="bg-emerald-50 dark:bg-emerald-950/30 p-3 rounded-xl flex items-center justify-center border border-emerald-100">
+                <span class="text-3xl">💵</span>
+              </div>
+              <div class="space-y-1">
+                <h4 class="text-xl font-bold font-display">Pay at Counter</h4>
+                <p class="text-slate-600 dark:text-slate-400 text-sm font-display">Place your order and pay with cash/UPI at the billing desk</p>
+              </div>
+            </div>
+            <button id="cashBtn" onclick="event.stopPropagation(); handleCashPayment()" style="display:none;" class="w-full md:w-auto px-8 py-3 border-2 border-emerald-500 text-emerald-600 dark:text-emerald-400 font-bold rounded-lg hover:bg-emerald-50 transition-all font-display z-20">
+                Place Order
+            </button>
+          </div>
+          <style>
+             #cashCard.selected #cashCardInner { border-color: #10b981; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+             #cashCard.selected #cashIndicator { opacity: 1; }
+          </style>
+        </div>
+
+        <!-- Coming Soon -->
+        <div class="bg-slate-100 dark:bg-slate-800/50 p-6 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 opacity-60">
+          <div class="flex items-start gap-6">
+            <div class="bg-slate-200 dark:bg-slate-800 p-3 rounded-xl flex items-center justify-center">
+              <span class="material-symbols-outlined text-slate-500 text-4xl">loyalty</span>
+            </div>
+            <div class="space-y-1">
+              <h4 class="text-xl font-bold text-slate-500 font-display">Cafe Loyalty Points</h4>
+              <p class="text-slate-500 text-sm italic font-display">Redeem points for your order (Coming Soon)</p>
+            </div>
+          </div>
+          <div class="w-full md:w-auto px-8 py-3 bg-slate-200 dark:bg-slate-700 text-slate-400 font-bold rounded-lg cursor-not-allowed font-display flex items-center justify-center">
+              Unavailable
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Trust Badges -->
+      <div class="mt-8 flex flex-wrap justify-center gap-12 border-t border-slate-200 dark:border-slate-800 pt-8 opacity-60">
+        <div class="flex items-center gap-3 text-slate-600">
+          <span class="material-symbols-outlined text-primary">verified_user</span>
+          <span class="text-sm font-medium font-display">Secure Payment</span>
+        </div>
+        <div class="flex items-center gap-3 text-slate-600">
+          <span class="material-symbols-outlined text-primary">bolt</span>
+          <span class="text-sm font-medium font-display">Instant Confirmation</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Loading -->
+  <div class="fixed inset-0 bg-white/80 backdrop-blur z-50 flex flex-col items-center justify-center hidden" id="paymentProcessing">
+    <div class="spinner border-primary !w-16 !h-16 !border-4 mb-6"></div>
+    <p class="text-slate-700 font-bold text-xl font-display">Processing your order...</p>
+    <p class="text-slate-500 mt-2 font-display text-sm">Please do not close this window</p>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script src="js/payment.js"></script>
+</body>
+</html>
